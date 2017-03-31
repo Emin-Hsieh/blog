@@ -1,0 +1,759 @@
+<!doctype html>
+
+
+
+
+<html class="theme-next mist" lang="en">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/blog/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+  
+  
+  
+  
+
+  
+    
+    
+  
+
+  
+
+  
+
+  
+
+  
+
+  
+    
+    
+    <link href="//fonts.googleapis.com/css?family=Lato:300,300italic,400,400italic,700,700italic&subset=latin,latin-ext" rel="stylesheet" type="text/css">
+  
+
+
+
+
+
+
+<link href="/blog/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/blog/css/main.css?v=5.1.0" rel="stylesheet" type="text/css" />
+
+
+  <meta name="keywords" content="rdp,autoit,hubot," />
+
+
+
+
+
+  <link rel="alternate" href="/blog/atom.xml" title="Debug Logger" type="application/atom+xml" />
+
+
+
+
+  <link rel="shortcut icon" type="image/x-icon" href="/blog/favicon.ico?v=5.1.0" />
+
+
+
+
+
+
+<meta name="description" content="Ok, 接下來，來記錄一下過去這一個多月來坎苛的 RDP 服務串接歷程好了
+首先，先來說明一下什麼是 RDP 服務串接這名詞其實是我自已創造的，並不是某種 MS 的功能，請千萬別誤會了
+這個 “服務” 的功用是
+ 用來幫我上傳檔案到遠端某台主機上 
+聽起來好像很簡單，但我卻在這吐了不少血">
+<meta property="og:type" content="article">
+<meta property="og:title" content="RDP 服務串接">
+<meta property="og:url" content="https://emin-hsieh.github.io/blog/2017/03/31/my-rdp-service/index.html">
+<meta property="og:site_name" content="Debug Logger">
+<meta property="og:description" content="Ok, 接下來，來記錄一下過去這一個多月來坎苛的 RDP 服務串接歷程好了
+首先，先來說明一下什麼是 RDP 服務串接這名詞其實是我自已創造的，並不是某種 MS 的功能，請千萬別誤會了
+這個 “服務” 的功用是
+ 用來幫我上傳檔案到遠端某台主機上 
+聽起來好像很簡單，但我卻在這吐了不少血">
+<meta property="og:image" content="http://kb.parallels.com/Attachments/kcs-39048/mstscc.png">
+<meta property="og:image" content="http://i.imgur.com/t8zvc.gif">
+<meta property="og:updated_time" content="2017-03-31T08:13:37.000Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="RDP 服務串接">
+<meta name="twitter:description" content="Ok, 接下來，來記錄一下過去這一個多月來坎苛的 RDP 服務串接歷程好了
+首先，先來說明一下什麼是 RDP 服務串接這名詞其實是我自已創造的，並不是某種 MS 的功能，請千萬別誤會了
+這個 “服務” 的功用是
+ 用來幫我上傳檔案到遠端某台主機上 
+聽起來好像很簡單，但我卻在這吐了不少血">
+<meta name="twitter:image" content="http://kb.parallels.com/Attachments/kcs-39048/mstscc.png">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/blog/',
+    scheme: 'Mist',
+    sidebar: {"position":"left","display":"post","offset":12,"offset_float":0,"b2t":false,"scrollpercent":false},
+    fancybox: true,
+    motion: false,
+    duoshuo: {
+      userId: '0',
+      author: 'Author'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="https://emin-hsieh.github.io/blog/2017/03/31/my-rdp-service/"/>
+
+
+
+
+
+  <title> RDP 服務串接 | Debug Logger </title>
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="en">
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail ">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/blog/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Debug Logger</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">write or not</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/blog/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            Home
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/blog/archives" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            Archives
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/blog/tags" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            Tags
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+    <link itemprop="mainEntityOfPage" href="https://emin-hsieh.github.io/blog/blog/2017/03/31/my-rdp-service/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Emin Hsieh">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/blog/images/avatar.gif">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Debug Logger">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                RDP 服務串接
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">Posted on</span>
+              
+              <time title="Post created" itemprop="dateCreated datePublished" datetime="2017-03-31T16:13:37+08:00">
+                2017-03-31
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+
+          
+            
+              <span class="post-comments-count">
+                <span class="post-meta-divider">|</span>
+                <span class="post-meta-item-icon">
+                  <i class="fa fa-comment-o"></i>
+                </span>
+                <a href="/blog/2017/03/31/my-rdp-service/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count disqus-comment-count"
+                        data-disqus-identifier="2017/03/31/my-rdp-service/" itemprop="commentCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>Ok, 接下來，來記錄一下過去這一個多月來坎苛的 RDP 服務串接歷程好了</p>
+<p>首先，先來說明一下什麼是 RDP 服務串接<br>這名詞其實是我自已創造的，並不是某種 MS 的功能，請千萬別誤會了</p>
+<p>這個 <strong>“服務”</strong> 的功用是</p>
+<p><strong><em> 用來幫我上傳檔案到遠端某台主機上 </em></strong></p>
+<p>聽起來好像很簡單，但我卻在這吐了不少血<br><a id="more"></a><br>先來個前情提要</p>
+<ul>
+<li>東西要 go prod ，要先把檔案放上 某台主機上</li>
+<li>只能用 windows RDP 的協定來傳輸檔案(FTP、http(s)、rsync 什麼的就都別想了)</li>
+<li>有很多 RD 要上 code</li>
+</ul>
+<p>這樣聽起來只要能建立起 RDP ，再把本機的資料夾 mount 上去，不就可以了吧</p>
+<p>這樣說絕對沒錯!!<br>只是會出現下一個問題</p>
+<p>我必需為每一個要上 code 的 RD 都申請一個帳號(不允許使用 domain name account)<br>但基於安全性考量，我並不想這麼做，再加上主機又不是我在管的<br>萬一被人玩壞就慘了</p>
+<p>so 第一個 solution 出現<br>我自已有養個 ci-bot (hubot) 並放在公司 internal 的主機上</p>
+<ol>
+<li>先把 RDP 連線存成檔案，並設好要 mount 的資料夾</li>
+<li><p>寫個小script，讓我可以直接對 bot 下命令去打開這個遠端主機連線檔</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">command = <span class="string">"mstsc \\path\\to\\file.rdp"</span></div><div class="line">@exec = <span class="built_in">require</span>(<span class="string">'child_process'</span>).exec</div><div class="line">@exec command, <span class="function"><span class="params">(error, stdout, stderr)</span> -&gt;</span></div><div class="line">  <span class="keyword">if</span> stderr</div><div class="line">     <span class="keyword">return</span> <span class="string">"ERROR (stderr): "</span> + stderr</div><div class="line">  <span class="keyword">if</span> error</div><div class="line">    <span class="keyword">return</span> <span class="string">"ERROR (error)"</span> + error</div><div class="line">  <span class="keyword">return</span> <span class="string">"更新完成 <span class="subst">#&#123;stdout&#125;</span>"</span></div></pre></td></tr></table></figure>
+</li>
+<li><p>開啟後直接執行 遠端主機上的某個 bat，直接開始 copy</p>
+<img src="http://kb.parallels.com/Attachments/kcs-39048/mstscc.png">
+</li>
+</ol>
+<p>到此為止，我感覺這世界是美好的</p>
+<img src="http://i.imgur.com/t8zvc.gif">
+<p>但美好的時光總是過的特快</p>
+<p>某天被通知，prod 的主機群發現勒索病毒，且受災程度不小<br>在重建遠端主機後，我的惡夢就來了</p>
+<p>為了怕再次重演這樣的事情</p>
+<p><strong>start program on connection</strong> 被禁止了….<br>新的 遠端主機不再允許連線時去執行 explorer.exe 以外的程式<br>也就是說只能開桌面了<br>wtf…..</p>
+<p>在消沉了好幾天後，開始找其他的 solution<br>好吧!!  現在不能用自動執行 bat(copy)</p>
+<p>那我用 手動 總行了吧</p>
+<p>這下找上了 autoit (坑坑坑…)</p>
+<p>ok 新的方案</p>
+<ol>
+<li>bot 收到指令後不再跑原生的 mstsc ，而是跑自已寫的 autoit script</li>
+<li><p>再來用 auotit 寫個小的 exe 檔，這會開啟 rdp 的 file 並建立連線</p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mstsc \\<span class="built_in">path</span>\\to\\file.rdp</div></pre></td></tr></table></figure>
+</li>
+<li><p>等 rdp window 起來後，對遠端的主機送出 keyboard command</p>
+<figure class="highlight bat"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">run some bat file</div></pre></td></tr></table></figure>
+</li>
+<li><p>視窗關閉後，開始分析 copy log 並回傳結果</p>
+</li>
+</ol>
+<p>好啦!!  初步的 autoit script 很簡單</p>
+<ul>
+<li>auto_run_rdp_script.au3<figure class="highlight autoit"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">doLog(<span class="string">"開始跑 rdp"</span>)</div><div class="line">RUN_MSTSC()</div><div class="line"><span class="function"><span class="keyword">Func</span> <span class="title">RUN_MSTSC</span><span class="params">()</span></span></div><div class="line">    <span class="built_in">Run</span>(<span class="string">"MSTSC.EXE .\file.RDP"</span>)</div><div class="line"></div><div class="line">    <span class="comment">; Wait 10 seconds for the Notepad window to appear.</span></div><div class="line">    <span class="keyword">Local</span> $hWnd = WinWaitActive(<span class="string">"[CLASS:TscShellContainerClass]"</span>)</div><div class="line"></div><div class="line"></div><div class="line">   <span class="keyword">If</span> <span class="literal">Not</span> <span class="built_in">WinActivate</span>($hWnd ) <span class="keyword">Then</span> <span class="built_in">WinActivate</span>($hWnd )</div><div class="line">   doLog(<span class="string">"等待連接中...."</span>)</div><div class="line">   <span class="built_in">Sleep</span>(<span class="number">10000</span>)</div><div class="line">   <span class="built_in">WinActivate</span>($hWnd )</div><div class="line">   doLog(<span class="string">"送出指令...."</span>)</div><div class="line"></div><div class="line">  <span class="built_in">Send</span>($hWnd, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"#r"</span>)</div><div class="line">  <span class="built_in">Sleep</span>(<span class="number">1000</span>)<span class="comment">;</span></div><div class="line">  <span class="built_in">WinActivate</span>($hWnd )</div><div class="line">  <span class="built_in">Send</span>($hWnd, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"copy.bat"</span>)</div><div class="line">  <span class="built_in">Sleep</span>(<span class="number">1000</span>)<span class="comment">;</span></div><div class="line">  <span class="built_in">Send</span>($hWnd, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"&#123;ENTER&#125;"</span>)</div><div class="line"></div><div class="line"><span class="keyword">EndFunc</span></div></pre></td></tr></table></figure>
+</li>
+</ul>
+<p>script 很陽春，但卡在對 autoit 的不熟悉<br>接下來不停的遇到的問題 就是</p>
+<ol>
+<li>rdp 的 window 沒有取到 focus 造成 command 送不進去….</li>
+<li>在主機沒有人連線的狀況下，RDP 的 window 無法 active ，造成後面的流程跑不下去</li>
+</ol>
+<p>好吧… 但事情總是要解決<br>先來處理第一個問題</p>
+<ol>
+<li>rdp 的 window 沒有取到 focus<br>本來解決這個我是想用 WinWaitActive 這個函數來處理<br>等到 window active 後再來做下面的動作<br>但沒想到，卻因此產生第二個問題</li>
+<li>非視窗模式下，WinWaitActive 不會有反應………<br>這可能是 window 的機制，這個我到是能了解<br>但這下我就只能回到最最最土砲的方式來做…</li>
+</ol>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="comment">;~ 先還原桌面, 讓等下的 rdp window 能拿到 focus</span></div><div class="line"><span class="built_in">Send</span>(<span class="string">"#d"</span>)</div><div class="line"></div><div class="line">doLog(<span class="string">"開始跑 rdp"</span>)</div><div class="line">RUN_MSTSC()</div><div class="line"><span class="function"><span class="keyword">Func</span> <span class="title">RUN_MSTSC</span><span class="params">()</span></span></div><div class="line">    <span class="built_in">Run</span>(<span class="string">"MSTSC.EXE .\file.RDP"</span>)</div><div class="line"></div><div class="line">    <span class="comment">; Wait 10 seconds for the Notepad window to appear.</span></div><div class="line">    <span class="keyword">Local</span> $hWnd = <span class="built_in">WinWait</span>(<span class="string">"[CLASS:TscShellContainerClass]"</span>)</div><div class="line">    doLog(<span class="string">"等待連接中...."</span>)</div><div class="line">    </div><div class="line">    <span class="built_in">Sleep</span>(<span class="number">10000</span>)</div><div class="line">    doLog(<span class="string">"送出指令...."</span>)</div><div class="line">    </div><div class="line">    <span class="built_in">ControlSend</span>($hWnd, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"#r"</span>)</div><div class="line">    <span class="built_in">Sleep</span>(<span class="number">1000</span>)<span class="comment">;</span></div><div class="line"></div><div class="line">    <span class="built_in">ControlSend</span>($hWnd, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"copy.bat"</span>)</div><div class="line">    <span class="built_in">Sleep</span>(<span class="number">1000</span>)<span class="comment">;</span></div><div class="line"></div><div class="line">    <span class="built_in">ControlSend</span>($hWnd, <span class="string">""</span>, <span class="string">""</span>, <span class="string">"&#123;ENTER&#125;"</span>)</div><div class="line">	  doLog(<span class="string">"等待完成"</span>)</div><div class="line">	  WinWaitClose($hWnd)</div><div class="line"><span class="keyword">EndFunc</span></div></pre></td></tr></table></figure>
+<p>其實重點只有兩個</p>
+<ol>
+<li><p>先還原主機的桌面 </p>
+<figure class="highlight autoit"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">Send</span>(<span class="string">"#d"</span>)</div></pre></td></tr></table></figure>
+</li>
+<li><p>把 WinWaitActive 改用 WinWait ，讓他不會受限於 window 沒有 active </p>
+</li>
+</ol>
+<p>但我想這應該還是會有不少問題….<br>只能見招拆招了</p>
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <div>
+      
+        
+
+      
+    </div>
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/blog/tags/rdp/" rel="tag"># rdp</a>
+          
+            <a href="/blog/tags/autoit/" rel="tag"># autoit</a>
+          
+            <a href="/blog/tags/hubot/" rel="tag"># hubot</a>
+          
+        </div>
+      
+
+      
+        
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/blog/2017/03/30/react-hot-loader-實測/" rel="next" title="react-hot-loader 實測">
+                <i class="fa fa-chevron-left"></i> react-hot-loader 實測
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </article>
+
+
+
+    <div class="post-spread">
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+  <div class="comments" id="comments">
+    
+      <div id="disqus_thread">
+        <noscript>
+          Please enable JavaScript to view the
+          <a href="https://disqus.com/?ref_noscript">comments powered by Disqus.</a>
+        </noscript>
+      </div>
+    
+  </div>
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    <div class="sidebar-inner">
+
+      
+
+      
+
+      <section class="site-overview sidebar-panel sidebar-panel-active">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+          <img class="site-author-image" itemprop="image"
+               src="/blog/images/avatar.gif"
+               alt="Emin Hsieh" />
+          <p class="site-author-name" itemprop="name">Emin Hsieh</p>
+           
+              <p class="site-description motion-element" itemprop="description"></p>
+          
+        </div>
+        <nav class="site-state motion-element">
+
+          
+            <div class="site-state-item site-state-posts">
+              <a href="/blog/archives">
+                <span class="site-state-item-count">2</span>
+                <span class="site-state-item-name">posts</span>
+              </a>
+            </div>
+          
+
+          
+
+          
+            
+            
+            <div class="site-state-item site-state-tags">
+              <a href="/blog/tags/index.html">
+                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-name">tags</span>
+              </a>
+            </div>
+          
+
+        </nav>
+
+        
+          <div class="feed-link motion-element">
+            <a href="/blog/atom.xml" rel="alternate">
+              <i class="fa fa-rss"></i>
+              RSS
+            </a>
+          </div>
+        
+
+        <div class="links-of-author motion-element">
+          
+        </div>
+
+        
+        
+
+        
+        
+
+        
+
+
+      </section>
+
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <div class="copyright" >
+  
+  &copy; 
+  <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Emin Hsieh</span>
+</div>
+
+
+<div class="powered-by">
+  Powered by <a class="theme-link" href="https://hexo.io">Hexo</a>
+</div>
+
+<div class="theme-info">
+  Theme -
+  <a class="theme-link" href="https://github.com/iissnan/hexo-theme-next">
+    NexT.Mist
+  </a>
+</div>
+
+
+        
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery/index.js?v=2.1.3"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+
+  
+  <script type="text/javascript" src="/blog/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/utils.js?v=5.1.0"></script>
+
+  <script type="text/javascript" src="/blog/js/src/motion.js?v=5.1.0"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/blog/js/src/scrollspy.js?v=5.1.0"></script>
+<script type="text/javascript" src="/blog/js/src/post-details.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/blog/js/src/bootstrap.js?v=5.1.0"></script>
+
+
+
+  
+
+
+  
+
+    
+      <script id="dsq-count-scr" src="https://emin-hsieh.disqus.com/count.js" async></script>
+    
+
+    
+      <script type="text/javascript">
+        var disqus_config = function () {
+          this.page.url = 'https://emin-hsieh.github.io/blog/blog/2017/03/31/my-rdp-service/';
+          this.page.identifier = '2017/03/31/my-rdp-service/';
+          this.page.title = 'RDP 服務串接';
+        };
+        var d = document, s = d.createElement('script');
+        s.src = 'https://emin-hsieh.disqus.com/embed.js';
+        s.setAttribute('data-timestamp', '' + +new Date());
+        (d.head || d.body).appendChild(s);
+      </script>
+    
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
